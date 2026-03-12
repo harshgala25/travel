@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import packageData from "../public/packages.json";
 
 function Packages() {
 
@@ -8,9 +7,16 @@ function Packages() {
   const [current, setCurrent] = useState("");
   const [search, setSearch] = useState("");
 
-  // Load packages (simulating API)
+  // Load packages from public folder
   useEffect(() => {
-    setPackages(packageData.packages);
+
+    fetch("/packages.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setPackages(data.packages);
+      })
+      .catch((err) => console.log(err));
+
   }, []);
 
   const handleSelect = (pkg) => {
