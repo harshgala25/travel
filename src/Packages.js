@@ -10,7 +10,7 @@ function Packages() {
   // Fetch packages from mock REST API
   useEffect(() => {
 
-    fetch("/packages.json")
+      fetch(process.env.PUBLIC_URL + "/packages.json")
       .then((res) => res.json())
       .then((data) => {
         setPackages(data.packages);
