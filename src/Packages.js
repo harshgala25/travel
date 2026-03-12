@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import packageData from "../public/packages.json";
 
 function Packages() {
 
@@ -7,16 +8,9 @@ function Packages() {
   const [current, setCurrent] = useState("");
   const [search, setSearch] = useState("");
 
-  // Fetch packages from mock REST API
+  // Load packages (simulating API)
   useEffect(() => {
-
-      fetch(process.env.PUBLIC_URL + "/packages.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setPackages(data.packages);
-      })
-      .catch((err) => console.log(err));
-
+    setPackages(packageData.packages);
   }, []);
 
   const handleSelect = (pkg) => {
