@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from "react";
 
 function Packages() {
+
+  const [packages, setPackages] = useState([]);
   const [selected, setSelected] = useState([]);
   const [current, setCurrent] = useState("");
   const [search, setSearch] = useState("");
 
-  const packages = [
-    "Goa Beach Holiday",
-    "Manali Adventure Trip",
-    "Dubai Luxury Tour",
-    "Kerala Backwaters",
-    "Thailand Island Trip",
-    "Europe Explorer"
-  ];
+  // Fetch packages from mock REST API
+  useEffect(() => {
+
+    fetch("/packages.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setPackages(data.packages);
+      })
+      .catch((err) => console.log(err));
+
+  }, []);
 
   const handleSelect = (pkg) => {
     setCurrent(pkg);
@@ -68,8 +73,12 @@ function Packages() {
               background: "#f8fafc",
               transition: "0.3s"
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "scale(1.05)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.transform = "scale(1)")
+            }
           >
             <h4>{pkg}</h4>
             <p>Click to select</p>

@@ -1,32 +1,40 @@
 import React, { Component, createRef, useEffect, useState } from "react";
 
-/* Wrapper uses HOOKS (useState + useEffect) to show success message */
+/* Wrapper component using Hooks */
 function ContactPage() {
   const [showMsg, setShowMsg] = useState(false);
 
   useEffect(() => {
     if (!showMsg) return;
-
     const t = setTimeout(() => setShowMsg(false), 3000);
     return () => clearTimeout(t);
   }, [showMsg]);
 
   return (
-    <div style={{ padding: "40px 20px", display: "flex", justifyContent: "center" }}>
+    <div
+      style={{
+        minHeight: "80vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "#f1f5f9",
+        padding: "20px"
+      }}
+    >
       <div style={{ width: "100%", maxWidth: "520px" }}>
         {showMsg && (
           <div
             style={{
-              marginBottom: "14px",
-              padding: "12px 14px",
-              borderRadius: "12px",
               background: "#dcfce7",
               border: "1px solid #22c55e",
+              padding: "12px",
+              borderRadius: "10px",
+              marginBottom: "15px",
               color: "#14532d",
-              boxShadow: "0 6px 18px rgba(0,0,0,0.12)"
+              textAlign: "center"
             }}
           >
-            ✅ Thanks! We received your message. We’ll contact you soon.
+            ✅ Message sent successfully! We will contact you soon.
           </div>
         )}
 
@@ -76,28 +84,6 @@ class ContactForm extends Component {
     return error;
   };
 
-  handleBlur = (e) => {
-    const { name, value } = e.target;
-    const error = this.validateField(name, value);
-
-    this.setState((prev) => ({
-      touched: { ...prev.touched, [name]: true },
-      errors: { ...prev.errors, [name]: error }
-    }));
-  };
-
-  handleChange = (e) => {
-    const { name, value } = e.target;
-    this.setState({ [name]: value });
-
-    if (this.state.touched[name]) {
-      const error = this.validateField(name, value);
-      this.setState((prev) => ({
-        errors: { ...prev.errors, [name]: error }
-      }));
-    }
-  };
-
   handleSubmit = (e) => {
     e.preventDefault();
 
@@ -115,18 +101,27 @@ class ContactForm extends Component {
     });
 
     const hasError = Object.values(errors).some((err) => err);
+
     if (!hasError) {
-      alert("Form Submitted Successfully!");
+      fetch("https://jsonplaceholder.typicode.com/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name, email, message })
+      })
+        .then((res) => res.json())
+        .then(() => {
+          if (this.props.onSuccess) this.props.onSuccess();
 
-      if (this.props.onSuccess) this.props.onSuccess();
-
-      this.setState({
-        name: "",
-        email: "",
-        message: "",
-        errors: {},
-        touched: {}
-      });
+          this.setState({
+            name: "",
+            email: "",
+            message: "",
+            errors: {},
+            touched: {}
+          });
+        });
     }
   };
 
@@ -136,97 +131,57 @@ class ContactForm extends Component {
     return (
       <div
         style={{
-          padding: "26px 24px",
-          borderRadius: "16px",
           background: "white",
-          boxShadow: "0 10px 28px rgba(0,0,0,0.18)"
+          padding: "30px",
+          borderRadius: "15px",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.15)"
         }}
       >
-        <div style={{ textAlign: "center", marginBottom: 14 }}>
-          <div style={{ fontSize: 28 }}>📩</div>
-          <h2 style={{ margin: "8px 0 4px" }}>Contact Us</h2>
-          <div style={{ color: "#64748b", fontSize: 14 }}>
-            Fill the form and we’ll reach you
-          </div>
-        </div>
+        <h2 style={{ textAlign: "center", marginBottom: "10px" }}>📩 Contact Us</h2>
+        <p style={{ textAlign: "center", color: "#64748b", marginBottom: "20px" }}>
+          Have a question about our travel packages? Send us a message.
+        </p>
 
         <form onSubmit={this.handleSubmit}>
-          <div style={{ marginBottom: 12 }}>
+          <div style={{ marginBottom: "15px" }}>
             <input
               ref={this.nameRef}
               type="text"
               name="name"
-              placeholder="Enter Name"
+              placeholder="Your Name"
               value={name}
-              onChange={this.handleChange}
-              onBlur={this.handleBlur}
-              style={{
-                width: "90%",
-                padding: "12px 14px",
-                borderRadius: "10px",
-                border: "1px solid #cbd5e1"
-              }}
+              onChange={(e) => this.setState({ name: e.target.value })}
+              style={inputStyle}
             />
-            <div style={{ color: "#ef4444", fontSize: 13, marginTop: 6 }}>
-              {errors.name}
-            </div>
+            <div style={errorStyle}>{errors.name}</div>
           </div>
 
-          <div style={{ marginBottom: 12 }}>
+          <div style={{ marginBottom: "15px" }}>
             <input
               type="email"
               name="email"
-              placeholder="Enter Email"
+              placeholder="Your Email"
               value={email}
-              onChange={this.handleChange}
-              onBlur={this.handleBlur}
-              style={{
-                width: "90%",
-                padding: "12px 14px",
-                borderRadius: "10px",
-                border: "1px solid #cbd5e1"
-              }}
+              onChange={(e) => this.setState({ email: e.target.value })}
+              style={inputStyle}
             />
-            <div style={{ color: "#ef4444", fontSize: 13, marginTop: 6 }}>
-              {errors.email}
-            </div>
+            <div style={errorStyle}>{errors.email}</div>
           </div>
 
-          <div style={{ marginBottom: 14 }}>
+          <div style={{ marginBottom: "15px" }}>
             <textarea
               name="message"
-              placeholder="Enter Message"
-              value={message}
-              onChange={this.handleChange}
-              onBlur={this.handleBlur}
+              placeholder="Write your message..."
               rows="4"
-              style={{
-                width: "90%",
-                padding: "12px 14px",
-                borderRadius: "10px",
-                border: "1px solid #cbd5e1",
-                resize: "vertical"
-              }}
+              value={message}
+              onChange={(e) => this.setState({ message: e.target.value })}
+              style={textareaStyle}
             />
-            <div style={{ color: "#ef4444", fontSize: 13, marginTop: 6 }}>
-              {errors.message}
-            </div>
+            <div style={errorStyle}>{errors.message}</div>
           </div>
 
-          <button
-            type="submit"
-            style={{
-              width: "100%",
-              padding: "12px 14px",
-              borderRadius: "10px",
-              border: "none",
-              background: "#0f172a",
-              color: "white",
-              fontSize: 16,
-              cursor: "pointer"
-            }}
-          >
-            Submit
+          <button style={buttonStyle} type="submit">
+            Send Message
           </button>
         </form>
       </div>
@@ -234,5 +189,38 @@ class ContactForm extends Component {
   }
 }
 
-/* IMPORTANT: export the HOOKS wrapper, not the class */
+const inputStyle = {
+  width: "90%",
+  padding: "12px",
+  borderRadius: "8px",
+  border: "1px solid #cbd5e1",
+  fontSize: "14px"
+};
+
+const textareaStyle = {
+  width: "90%",
+  padding: "12px",
+  borderRadius: "8px",
+  border: "1px solid #cbd5e1",
+  fontSize: "14px",
+  resize: "vertical"
+};
+
+const buttonStyle = {
+  width: "96%",
+  padding: "12px",
+  borderRadius: "8px",
+  border: "none",
+  background: "#0f172a",
+  color: "white",
+  fontSize: "16px",
+  cursor: "pointer"
+};
+
+const errorStyle = {
+  color: "#ef4444",
+  fontSize: "13px",
+  marginTop: "5px"
+};
+
 export default ContactPage;
